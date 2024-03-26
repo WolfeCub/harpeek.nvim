@@ -1,0 +1,38 @@
+# Har(and other quick access lists)peek
+
+A simple plugin that allows you to _peek_ at your harpoon/grapple lists.
+The look was heavily inspired by [bufpin.nvim](https://github.com/0x7a7a/bufpin.nvim).
+
+## Installation
+
+Using lazy.nvim
+
+```lua
+{
+    'WolfeCub/harpeek.nvim',
+    config = function()
+        require('harpeek').setup()
+    end
+}
+```
+
+## Usage
+The public API of harpeek is very simple:
+
+```lua
+-- You can open the preview window with: 
+require('harpeek').open()
+-- and close it with
+require('harpeek').close()
+```
+
+Harpeek will automatically detect if you have harpoon or grapple installed and use the appropriate list.
+
+
+### Default options
+
+```lua
+require('harpeek').setup({
+    hl_group = 'Error', -- This group will be used to highlight your current active buffer
+})
+```
