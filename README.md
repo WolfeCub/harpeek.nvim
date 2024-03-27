@@ -22,9 +22,10 @@ Using lazy.nvim
 The public API of harpeek is very simple:
 
 ```lua
--- You can open the preview window with: 
+-- You can toggle the visibility of the window with:
+require('harpeek').toeggle()
+-- if you need more granular control you can open/close the preview window with:
 require('harpeek').open()
--- and close it with
 require('harpeek').close()
 ```
 

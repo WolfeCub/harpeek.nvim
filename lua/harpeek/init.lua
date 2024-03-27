@@ -93,4 +93,12 @@ function M.close()
     end
 end
 
+function M.toggle()
+    if M._window then
+        M.close()
+    else
+        M.open()
+    end
+end
+
 return M
