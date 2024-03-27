@@ -20,3 +20,8 @@ for _, ext in ipairs(extensions) do
         return ext
     end
 end
+
+vim.notify(
+    'Harpeek could not detect any supported plugins. Please ensure they\'re requirable before harpeek setup is called.',
+    vim.log.levels.ERROR
+)
