@@ -1,4 +1,4 @@
-local as = require('harpeek.app-specific')
+local ext = require('harpeek.extensions')
 
 M = {}
 
@@ -17,7 +17,7 @@ function M.setup(opts)
     end
     M._settings = vim.tbl_extend('force', default_settings, opts)
 
-    as.register_listener()
+    ext.register_listener()
 
     vim.api.nvim_create_autocmd({ 'BufEnter' }, {
         callback = function()
@@ -44,7 +44,7 @@ end
 function M.open()
     local contents = {}
     local longest_line = 0
-    local list = as.get_list()
+    local list = ext.get_list()
     for i, path in ipairs(list) do
         local line = i .. ' ' .. vim.fn.fnamemodify(path, ':t')
         table.insert(contents, line)
