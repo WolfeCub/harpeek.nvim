@@ -4,6 +4,8 @@
 ---@field register_listener fun(): nil
 
 
+---@param module string
+---@return boolean
 local function has(module)
     local exists, _ = pcall(require, module)
     return exists
@@ -13,6 +15,7 @@ end
 local extensions = {
     require('harpeek.extensions.grapple'),
     require('harpeek.extensions.harpoon'),
+    require('harpeek.extensions.arrow'),
 }
 
 for _, ext in ipairs(extensions) do

@@ -28,8 +28,6 @@ function M.setup(opts)
     })
 end
 
-
-
 local function get_buffer()
     if M._buffer then
         return M._buffer

@@ -1,6 +1,6 @@
 # Har(and other quick access lists)peek
 
-A simple plugin that allows you to _peek_ at your harpoon/grapple lists.
+A simple plugin that allows you to _peek_ at your harpoon/grapple/arrow lists.
 The look was heavily inspired by [bufpin.nvim](https://github.com/0x7a7a/bufpin.nvim).
 
 ![harpeek-demo](https://github.com/WolfeCub/harpeek.nvim/assets/1369773/5ef08444-04e3-4ecf-ab8d-5bcff8e1bd41)
