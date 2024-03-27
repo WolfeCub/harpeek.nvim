@@ -2,10 +2,15 @@ local as = require('harpeek.app-specific')
 
 M = {}
 
+---@class harpeek.settings
+---@field hl_group string? The highlight group to use for the currently selected buffer
+
+---@type harpeek.settings
 local default_settings = {
     hl_group = 'Error',
 }
 
+---@param opts harpeek.settings?
 function M.setup(opts)
     if not opts then
         opts = {}
