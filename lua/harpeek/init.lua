@@ -39,13 +39,31 @@ local function get_buffer()
     end
 end
 
+local function _strip_dir_to_cwd(dirname)
+    local cwd = vim.fn.getcwd()
+    if dirname:find('oil://') then
+        dirname = dirname:gsub( 'oil://', '')
+    end
+    if dirname:find(cwd) then
+        return './' .. dirname:gsub( cwd..'/', '')
+    end
+    return dirname
+end
+
 function Harpeek.open()
     local contents = {}
     local longest_line = 0
+    local line = ''
     local list = ext.get_list()
+    vim.print(list)
     for i, path in ipairs(list) do
-        local line = i .. ' ' .. vim.fn.fnamemodify(path, ':t')
-        table.insert(contents, line)
+        line = vim.fn.fnamemodify(path, ':t')
+
+        if line:len() == 0 then
+            line = _strip_dir_to_cwd(path)
+        end
+
+        table.insert(contents, i .. ' ' .. line)
 
         if line:len() > longest_line then
             longest_line = line:len()
