@@ -23,7 +23,7 @@ The public API of harpeek is very simple:
 
 ```lua
 -- You can toggle the visibility of the window with:
-require('harpeek').toeggle()
+require('harpeek').toggle()
 -- if you need more granular control you can open/close the preview window with:
 require('harpeek').open()
 require('harpeek').close()
