@@ -1,6 +1,6 @@
 local ext = require('harpeek.extensions')
 
-M = {}
+Harpeek = {}
 
 ---@class harpeek.settings
 ---@field hl_group string? The highlight group to use for the currently selected buffer
@@ -11,35 +11,35 @@ local default_settings = {
 }
 
 ---@param opts harpeek.settings?
-function M.setup(opts)
+function Harpeek.setup(opts)
     if not opts then
         opts = {}
     end
-    M._settings = vim.tbl_extend('force', default_settings, opts)
+    Harpeek._settings = vim.tbl_extend('force', default_settings, opts)
 
     ext.register_listener()
 
     vim.api.nvim_create_autocmd({ 'BufEnter' }, {
         callback = function()
-            if M._window then
-                M.open()
+            if Harpeek._window then
+                Harpeek.open()
             end
         end,
     })
 end
 
 local function get_buffer()
-    if M._buffer then
-        return M._buffer
+    if Harpeek._buffer then
+        return Harpeek._buffer
     else
         local buff = vim.api.nvim_create_buf(false, true)
         vim.api.nvim_buf_set_name(buff, '*preview-tmp*')
-        M._buffer = buff
+        Harpeek._buffer = buff
         return buff
     end
 end
 
-function M.open()
+function Harpeek.open()
     local contents = {}
     local longest_line = 0
     local list = ext.get_list()
@@ -57,23 +57,23 @@ function M.open()
     vim.api.nvim_buf_set_lines(buff, 0, -1, true, contents)
 
 
-    if M._buffer and M._hlns then
-        vim.api.nvim_buf_clear_namespace(M._buffer, M._hlns, 0, -1)
+    if Harpeek._buffer and Harpeek._hlns then
+        vim.api.nvim_buf_clear_namespace(Harpeek._buffer, Harpeek._hlns, 0, -1)
     end
 
     for i, item in ipairs(list) do
         if vim.fn.expand('%:p') == vim.fn.fnamemodify(item, ':p') then
-            M._hlns = vim.api.nvim_buf_add_highlight(M._buffer, 0, 'Error', i-1, 0, -1)
+            Harpeek._hlns = vim.api.nvim_buf_add_highlight(Harpeek._buffer, 0, 'Error', i-1, 0, -1)
         end
     end
 
     local size = vim.api.nvim_list_uis()[1]
 
-    if M._window then
-        vim.api.nvim_win_set_height(M._window, #contents)
-        vim.api.nvim_win_set_width(M._window, longest_line)
+    if Harpeek._window then
+        vim.api.nvim_win_set_height(Harpeek._window, #contents)
+        vim.api.nvim_win_set_width(Harpeek._window, longest_line)
     else
-        M._window = vim.api.nvim_open_win(buff, false, {
+        Harpeek._window = vim.api.nvim_open_win(buff, false, {
             relative = 'win',
             focusable = false,
             row = size.height * 0.2,
@@ -86,19 +86,19 @@ function M.open()
     end
 end
 
-function M.close()
-    if M._window then
-        vim.api.nvim_win_close(M._window, true)
-        M._window = nil
+function Harpeek.close()
+    if Harpeek._window then
+        vim.api.nvim_win_close(Harpeek._window, true)
+        Harpeek._window = nil
     end
 end
 
-function M.toggle()
-    if M._window then
-        M.close()
+function Harpeek.toggle()
+    if Harpeek._window then
+        Harpeek.close()
     else
-        M.open()
+        Harpeek.open()
     end
 end
 
-return M
+return Harpeek
