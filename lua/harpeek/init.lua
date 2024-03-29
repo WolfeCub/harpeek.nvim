@@ -39,7 +39,7 @@ local function get_buffer()
     end
 end
 
-local function _strip_dir_to_cwd(dirname)
+local function _dir_name_modify(dirname)
     local cwd = vim.fn.getcwd()
     if dirname:find('oil://') then
         dirname = dirname:gsub( 'oil://', '')
@@ -55,12 +55,11 @@ function Harpeek.open()
     local longest_line = 0
     local line = ''
     local list = ext.get_list()
-    vim.print(list)
     for i, path in ipairs(list) do
         line = vim.fn.fnamemodify(path, ':t')
 
         if line:len() == 0 then
-            line = _strip_dir_to_cwd(path)
+            line = _dir_name_modify(path)
         end
 
         table.insert(contents, i .. ' ' .. line)
@@ -91,16 +90,20 @@ function Harpeek.open()
         vim.api.nvim_win_set_height(Harpeek._window, #contents)
         vim.api.nvim_win_set_width(Harpeek._window, longest_line)
     else
-        Harpeek._window = vim.api.nvim_open_win(buff, false, {
-            relative = 'win',
-            focusable = false,
-            row = size.height * 0.2,
-            col = size.width,
-            width = longest_line,
-            height = #contents,
-            border = { '╭', '─', '─', ' ', '─', '─', '╰', '│' },
-            style = 'minimal'
-        })
+        if #contents == 0 then
+            vim.notify("No marks are available")
+        else
+            Harpeek._window = vim.api.nvim_open_win(buff, false, {
+                relative = 'win',
+                focusable = false,
+                row = size.height * 0.2,
+                col = size.width,
+                width = longest_line,
+                height = #contents,
+                border = { '╭', '─', '─', ' ', '─', '─', '╰', '│' },
+                style = 'minimal'
+            })
+        end
     end
 end
 
