@@ -4,10 +4,12 @@ M = {}
 
 ---@class harpeek.settings
 ---@field hl_group string? The highlight group to use for the currently selected buffer
+---@field winopts table<string, any>? Overrides that will be passed to `nvim_open_win`
 
 ---@type harpeek.settings
 local default_settings = {
     hl_group = 'Error',
+    winopts = {},
 }
 
 ---@param opts harpeek.settings?
@@ -50,7 +52,6 @@ function M.open()
         if line:len() > longest_line then
             longest_line = line:len()
         end
-
     end
 
     local buff = get_buffer()
@@ -63,7 +64,7 @@ function M.open()
 
     for i, item in ipairs(list) do
         if vim.fn.expand('%:p') == vim.fn.fnamemodify(item, ':p') then
-            M._hlns = vim.api.nvim_buf_add_highlight(M._buffer, 0, 'Error', i-1, 0, -1)
+            M._hlns = vim.api.nvim_buf_add_highlight(M._buffer, 0, 'Error', i - 1, 0, -1)
         end
     end
 
@@ -73,7 +74,7 @@ function M.open()
         vim.api.nvim_win_set_height(M._window, #contents)
         vim.api.nvim_win_set_width(M._window, longest_line)
     else
-        M._window = vim.api.nvim_open_win(buff, false, {
+        local winopts = {
             relative = 'win',
             focusable = false,
             row = size.height * 0.2,
@@ -82,7 +83,8 @@ function M.open()
             height = #contents,
             border = { '╭', '─', '─', ' ', '─', '─', '╰', '│' },
             style = 'minimal'
-        })
+        }
+        M._window = vim.api.nvim_open_win(buff, false, vim.tbl_extend('force', winopts, M._settings.winopts))
     end
 end
 

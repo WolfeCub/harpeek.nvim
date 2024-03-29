@@ -5,7 +5,7 @@ The look was heavily inspired by [bufpin.nvim](https://github.com/0x7a7a/bufpin.
 
 ![harpeek-demo](https://github.com/WolfeCub/harpeek.nvim/assets/1369773/5ef08444-04e3-4ecf-ab8d-5bcff8e1bd41)
 
-## Installation
+## Quick Start
 
 Using lazy.nvim
 
@@ -18,7 +18,6 @@ Using lazy.nvim
 }
 ```
 
-## Usage
 The public API of harpeek is very simple:
 
 ```lua
@@ -31,11 +30,17 @@ require('harpeek').close()
 
 Harpeek will automatically detect if you have harpoon or grapple installed and use the appropriate list.
 
-
-### Default options
+## Advanced Setup
 
 ```lua
 require('harpeek').setup({
-    hl_group = 'Error', -- This group will be used to highlight your current active buffer
+    -- You can replace the hightlight group used on the currently selected buffer
+    hl_group = 'Error',
+    -- You can override any window options. For example here we set a different position & border.
+    winopts = {
+        row = 10,
+        col = 10,
+        border = 'rounded',
+    },
 })
 ```
