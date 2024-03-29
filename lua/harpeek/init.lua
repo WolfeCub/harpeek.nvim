@@ -4,10 +4,12 @@ Harpeek = {}
 
 ---@class harpeek.settings
 ---@field hl_group string? The highlight group to use for the currently selected buffer
+---@field winopts table<string, any>? Overrides that will be passed to `nvim_open_win`
 
 ---@type harpeek.settings
 local default_settings = {
     hl_group = 'Error',
+    winopts = {},
 }
 
 ---@param opts harpeek.settings?
@@ -67,7 +69,6 @@ function Harpeek.open()
         if line:len() > longest_line then
             longest_line = line:len()
         end
-
     end
 
     local buff = get_buffer()
