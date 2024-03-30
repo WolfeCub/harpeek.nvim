@@ -47,5 +47,10 @@ require('harpeek').setup({
     -- 'relative' will show the entire path relative to cwd
     -- 'shortened' will show relative with single letters for the dir
     format = 'relative',
+    -- Alternatively format can be a function that returns a custom format for each line
+    format = function(path, index)
+        return '[' .. index .. '] - ' .. path
+    end
+
 })
 ```
