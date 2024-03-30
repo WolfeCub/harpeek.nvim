@@ -14,8 +14,8 @@ return {
         local harpoon = require('harpoon')
 
         local fun = function()
-            if M._window then
-                M.open()
+            if Harpeek._window then
+                Harpeek.open()
             end
         end
 

@@ -42,5 +42,10 @@ require('harpeek').setup({
         col = 10,
         border = 'rounded',
     },
+    -- How each item will be displayed:
+    -- 'filename' will show just the tail (default)
+    -- 'relative' will show the entire path relative to cwd
+    -- 'shortened' will show relative with single letters for the dir
+    format = 'relative',
 })
 ```
