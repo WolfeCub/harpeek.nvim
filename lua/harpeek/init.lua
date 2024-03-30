@@ -48,20 +48,44 @@ local function get_buffer()
 end
 
 ---@param path string
+---@return string?
+local function split_oil_dir(path)
+    if path:sub(1, 6) ~= 'oil://' then
+        return nil
+    end
+
+    if path:sub(-1, -1) == '/' then
+        return path:sub(7, -2)
+    else
+        return path:sub(7, -1)
+    end
+end
+
+---@param path string
 local function format_item(path, index)
     if type(Harpeek._settings.format) == 'function' then
         return Harpeek._settings.format(path, index)
     end
 
+    local oil_path = split_oil_dir(path)
+    local suffix = ''
+    if oil_path then
+        path = oil_path
+        suffix = '/'
+    end
+
+    -- TODO: This logic is pretty opaque. I could probably do something nicer.
     local format = ''
     if Harpeek._settings.format == 'filename' then
-        format = vim.fn.fnamemodify(path, ':t')
+        format = vim.fn.fnamemodify(path, ':t') .. suffix
     else
-        local relative = vim.fn.fnamemodify(path, ':.')
-        if Harpeek._settings.format == 'relative' then
+        local relative = vim.fn.fnamemodify(path .. suffix, ':.')
+        if #relative == 0 then
+            format = '.'
+        elseif Harpeek._settings.format == 'relative' then
             format = relative
         elseif Harpeek._settings.format == 'shortened' then
-            format = vim.fn.pathshorten(relative)
+            format = vim.fn.pathshorten(vim.fn.fnamemodify(path, ':.')) .. suffix
         end
     end
 
