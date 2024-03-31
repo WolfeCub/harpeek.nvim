@@ -62,9 +62,10 @@ local function split_oil_dir(path)
 end
 
 ---@param path string
-local function format_item(path, index)
-    if type(Harpeek._settings.format) == 'function' then
-        return Harpeek._settings.format(path, index)
+---@param format harpeek.format
+local function format_item(path, index, format)
+    if type(format) == 'function' then
+        return format(path, index)
     end
 
     local oil_path = split_oil_dir(path)
@@ -75,29 +76,40 @@ local function format_item(path, index)
     end
 
     -- TODO: This logic is pretty opaque. I could probably do something nicer.
-    local format = ''
-    if Harpeek._settings.format == 'filename' then
-        format = vim.fn.fnamemodify(path, ':t') .. suffix
+    local postfix = ''
+    if format == 'filename' then
+        postfix = vim.fn.fnamemodify(path, ':t') .. suffix
     else
         local relative = vim.fn.fnamemodify(path .. suffix, ':.')
         if #relative == 0 then
-            format = '.'
-        elseif Harpeek._settings.format == 'relative' then
-            format = relative
-        elseif Harpeek._settings.format == 'shortened' then
-            format = vim.fn.pathshorten(vim.fn.fnamemodify(path, ':.')) .. suffix
+            postfix = '.'
+        elseif format == 'relative' then
+            postfix = relative
+        elseif format == 'shortened' then
+            postfix = vim.fn.pathshorten(vim.fn.fnamemodify(path, ':.')) .. suffix
         end
     end
 
-    return index .. ' ' .. format
+    return index .. ' ' .. postfix
 end
 
-function Harpeek.open()
+---@param opts harpeek.settings?
+function Harpeek.open(opts)
+    if not opts then
+        opts = Harpeek._settings
+    end
+    opts = vim.tbl_extend('force', Harpeek._settings, opts)
+
     local contents = {}
     local longest_line = 0
     local list = ext.get_list()
+    if #list == 0 then
+        vim.notify("No marks")
+        return
+    end
+
     for i, path in ipairs(list) do
-        local line = format_item(path, i)
+        local line = format_item(path, i, opts.format)
         table.insert(contents, line)
 
         if line:len() > longest_line then
@@ -115,7 +127,7 @@ function Harpeek.open()
 
     for i, item in ipairs(list) do
         if vim.fn.expand('%:p') == vim.fn.fnamemodify(item, ':p') then
-            Harpeek._hlns = vim.api.nvim_buf_add_highlight(Harpeek._buffer, 0, Harpeek._settings.hl_group, i - 1, 0, -1)
+            Harpeek._hlns = vim.api.nvim_buf_add_highlight(Harpeek._buffer, 0, opts.hl_group, i - 1, 0, -1)
         end
     end
 
@@ -135,7 +147,7 @@ function Harpeek.open()
             border = { '╭', '─', '─', ' ', '─', '─', '╰', '│' },
             style = 'minimal'
         }
-        Harpeek._window = vim.api.nvim_open_win(buff, false, vim.tbl_extend('force', winopts, Harpeek._settings.winopts))
+        Harpeek._window = vim.api.nvim_open_win(buff, false, vim.tbl_extend('force', winopts, opts.winopts))
     end
 end
 
@@ -146,11 +158,12 @@ function Harpeek.close()
     end
 end
 
-function Harpeek.toggle()
+---@param opts harpeek.settings?
+function Harpeek.toggle(opts)
     if Harpeek._window then
         Harpeek.close()
     else
-        Harpeek.open()
+        Harpeek.open(opts)
     end
 end
 

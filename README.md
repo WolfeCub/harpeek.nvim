@@ -26,6 +26,20 @@ require('harpeek').toggle()
 -- if you need more granular control you can open/close the preview window with:
 require('harpeek').open()
 require('harpeek').close()
+
+
+-- You can also pass an optional settings to open and toggle functions:
+require('harpeek').toggle({
+    hl_group = 'Error',
+    format = 'relative',
+})
+require('harpeek').open({
+    winopts = {
+        row = 10,
+        col = 10,
+        border = 'none',
+    }
+})
 ```
 
 Harpeek will automatically detect if you have harpoon or grapple installed and use the appropriate list.
