@@ -15,7 +15,7 @@ return {
 
         local fun = function()
             if Harpeek._window then
-                Harpeek.open()
+                Harpeek.open(Harpeek._open_opts)
             end
         end
 

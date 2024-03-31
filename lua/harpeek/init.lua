@@ -16,6 +16,9 @@ local default_settings = {
     format = 'filename',
 }
 
+---@type harpeek.settings
+Harpeek._open_opts = nil
+
 ---@param opts harpeek.settings?
 function Harpeek.setup(opts)
     if not opts then
@@ -30,7 +33,7 @@ function Harpeek.setup(opts)
     vim.api.nvim_create_autocmd({ 'BufEnter' }, {
         callback = function()
             if Harpeek._window then
-                Harpeek.open()
+                Harpeek.open(Harpeek._open_opts)
             end
         end,
     })
@@ -96,9 +99,9 @@ end
 ---@param opts harpeek.settings?
 function Harpeek.open(opts)
     if not opts then
-        opts = Harpeek._settings
+        Harpeek._open_opts = Harpeek._settings
     end
-    opts = vim.tbl_extend('force', Harpeek._settings, opts)
+    Harpeek._open_opts = vim.tbl_extend('force', Harpeek._settings, opts)
 
     local contents = {}
     local longest_line = 0
@@ -109,7 +112,7 @@ function Harpeek.open(opts)
     end
 
     for i, path in ipairs(list) do
-        local line = format_item(path, i, opts.format)
+        local line = format_item(path, i, Harpeek._open_opts.format)
         table.insert(contents, line)
 
         if line:len() > longest_line then
@@ -127,7 +130,7 @@ function Harpeek.open(opts)
 
     for i, item in ipairs(list) do
         if vim.fn.expand('%:p') == vim.fn.fnamemodify(item, ':p') then
-            Harpeek._hlns = vim.api.nvim_buf_add_highlight(Harpeek._buffer, 0, opts.hl_group, i - 1, 0, -1)
+            Harpeek._hlns = vim.api.nvim_buf_add_highlight(Harpeek._buffer, 0, Harpeek._open_opts.hl_group, i - 1, 0, -1)
         end
     end
 
@@ -147,7 +150,7 @@ function Harpeek.open(opts)
             border = { '╭', '─', '─', ' ', '─', '─', '╰', '│' },
             style = 'minimal'
         }
-        Harpeek._window = vim.api.nvim_open_win(buff, false, vim.tbl_extend('force', winopts, opts.winopts))
+        Harpeek._window = vim.api.nvim_open_win(buff, false, vim.tbl_extend('force', winopts, Harpeek._open_opts.winopts))
     end
 end
 
