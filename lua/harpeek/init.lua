@@ -79,37 +79,34 @@ local function format_item(path, index, format)
     end
 
     -- TODO: This logic is pretty opaque. I could probably do something nicer.
-    local postfix = ''
+    local formatted_line = ''
     if format == 'filename' then
-        postfix = vim.fn.fnamemodify(path, ':t') .. suffix
+        formatted_line = vim.fn.fnamemodify(path, ':t') .. suffix
     else
         local relative = vim.fn.fnamemodify(path .. suffix, ':.')
         if #relative == 0 then
-            postfix = '.'
+            formatted_line = '.'
         elseif format == 'relative' then
-            postfix = relative
+            formatted_line = relative
         elseif format == 'shortened' then
-            postfix = vim.fn.pathshorten(vim.fn.fnamemodify(path, ':.')) .. suffix
+            formatted_line = vim.fn.pathshorten(vim.fn.fnamemodify(path, ':.')) .. suffix
         end
     end
 
-    return index .. ' ' .. postfix
+    return index .. ' ' .. formatted_line
 end
 
 ---@param opts harpeek.settings?
 function Harpeek.open(opts)
     if not opts then
         Harpeek._open_opts = Harpeek._settings
+    else
+        Harpeek._open_opts = vim.tbl_extend('force', Harpeek._settings, opts)
     end
-    Harpeek._open_opts = vim.tbl_extend('force', Harpeek._settings, opts)
 
     local contents = {}
     local longest_line = 0
     local list = ext.get_list()
-    if #list == 0 then
-        vim.notify("No marks")
-        return
-    end
 
     for i, path in ipairs(list) do
         local line = format_item(path, i, Harpeek._open_opts.format)
@@ -118,6 +115,11 @@ function Harpeek.open(opts)
         if line:len() > longest_line then
             longest_line = line:len()
         end
+    end
+
+    if #list == 0 then
+        contents = {"No marks"}
+        longest_line = contents[1]:len()
     end
 
     local buff = get_buffer()
