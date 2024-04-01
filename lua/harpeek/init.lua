@@ -98,11 +98,7 @@ end
 
 ---@param opts harpeek.settings?
 function Harpeek.open(opts)
-    if not opts then
-        Harpeek._open_opts = Harpeek._settings
-    else
-        Harpeek._open_opts = vim.tbl_extend('force', Harpeek._settings, opts)
-    end
+    Harpeek._open_opts = vim.tbl_extend('force', Harpeek._settings, opts or {})
 
     local contents = {}
     local longest_line = 0
