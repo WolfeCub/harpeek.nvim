@@ -96,6 +96,12 @@ local function format_item(path, index, format)
     return index .. ' ' .. formatted_line
 end
 
+function Harpeek._update()
+    if Harpeek._window then
+        Harpeek.open(Harpeek._open_opts)
+    end
+end
+
 ---@param opts harpeek.settings?
 function Harpeek.open(opts)
     Harpeek._open_opts = vim.tbl_extend('force', Harpeek._settings, opts or {})
@@ -156,6 +162,7 @@ function Harpeek.close()
     if Harpeek._window then
         vim.api.nvim_win_close(Harpeek._window, true)
         Harpeek._window = nil
+        Harpeek._open_opts = nil
     end
 end
 

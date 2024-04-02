@@ -14,9 +14,7 @@ return {
         vim.api.nvim_create_autocmd('User', {
             pattern = 'GrappleUpdate',
             callback = function()
-                if Harpeek._window then
-                    Harpeek.open(Harpeek._open_opts)
-                end
+                Harpeek._update()
             end,
         })
     end,

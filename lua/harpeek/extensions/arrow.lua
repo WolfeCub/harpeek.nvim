@@ -9,7 +9,7 @@ return {
             pattern = 'ArrowUpdate',
             callback = function()
                 if Harpeek._window then
-                    Harpeek.open(Harpeek._open_opts)
+                    Harpeek._update()
                 end
             end,
         })
