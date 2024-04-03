@@ -8,9 +8,7 @@ return {
         vim.api.nvim_create_autocmd('User', {
             pattern = 'ArrowUpdate',
             callback = function()
-                if Harpeek._window then
-                    Harpeek.open()
-                end
+                Harpeek._update()
             end,
         })
     end,

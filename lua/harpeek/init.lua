@@ -16,6 +16,9 @@ local default_settings = {
     format = 'filename',
 }
 
+---@type harpeek.settings
+Harpeek._open_opts = nil
+
 ---@param opts harpeek.settings?
 function Harpeek.setup(opts)
     if not opts then
@@ -30,7 +33,7 @@ function Harpeek.setup(opts)
     vim.api.nvim_create_autocmd({ 'BufEnter' }, {
         callback = function()
             if Harpeek._window then
-                Harpeek.open()
+                Harpeek.open(Harpeek._open_opts)
             end
         end,
     })
@@ -62,9 +65,10 @@ local function split_oil_dir(path)
 end
 
 ---@param path string
-local function format_item(path, index)
-    if type(Harpeek._settings.format) == 'function' then
-        return Harpeek._settings.format(path, index)
+---@param format harpeek.format
+local function format_item(path, index, format)
+    if type(format) == 'function' then
+        return format(path, index)
     end
 
     local oil_path = split_oil_dir(path)
@@ -75,34 +79,49 @@ local function format_item(path, index)
     end
 
     -- TODO: This logic is pretty opaque. I could probably do something nicer.
-    local format = ''
-    if Harpeek._settings.format == 'filename' then
-        format = vim.fn.fnamemodify(path, ':t') .. suffix
+    local formatted_line = ''
+    if format == 'filename' then
+        formatted_line = vim.fn.fnamemodify(path, ':t') .. suffix
     else
         local relative = vim.fn.fnamemodify(path .. suffix, ':.')
         if #relative == 0 then
-            format = '.'
-        elseif Harpeek._settings.format == 'relative' then
-            format = relative
-        elseif Harpeek._settings.format == 'shortened' then
-            format = vim.fn.pathshorten(vim.fn.fnamemodify(path, ':.')) .. suffix
+            formatted_line = '.'
+        elseif format == 'relative' then
+            formatted_line = relative
+        elseif format == 'shortened' then
+            formatted_line = vim.fn.pathshorten(vim.fn.fnamemodify(path, ':.')) .. suffix
         end
     end
 
-    return index .. ' ' .. format
+    return index .. ' ' .. formatted_line
 end
 
-function Harpeek.open()
+function Harpeek._update()
+    if Harpeek._window then
+        Harpeek.open(Harpeek._open_opts)
+    end
+end
+
+---@param opts harpeek.settings?
+function Harpeek.open(opts)
+    Harpeek._open_opts = vim.tbl_extend('force', Harpeek._settings, opts or {})
+
     local contents = {}
     local longest_line = 0
     local list = ext.get_list()
+
     for i, path in ipairs(list) do
-        local line = format_item(path, i)
+        local line = format_item(path, i, Harpeek._open_opts.format)
         table.insert(contents, line)
 
         if line:len() > longest_line then
             longest_line = line:len()
         end
+    end
+
+    if #list == 0 then
+        contents = {"No marks"}
+        longest_line = contents[1]:len()
     end
 
     local buff = get_buffer()
@@ -115,7 +134,7 @@ function Harpeek.open()
 
     for i, item in ipairs(list) do
         if vim.fn.expand('%:p') == vim.fn.fnamemodify(item, ':p') then
-            Harpeek._hlns = vim.api.nvim_buf_add_highlight(Harpeek._buffer, 0, Harpeek._settings.hl_group, i - 1, 0, -1)
+            Harpeek._hlns = vim.api.nvim_buf_add_highlight(Harpeek._buffer, 0, Harpeek._open_opts.hl_group, i - 1, 0, -1)
         end
     end
 
@@ -135,7 +154,7 @@ function Harpeek.open()
             border = { '╭', '─', '─', ' ', '─', '─', '╰', '│' },
             style = 'minimal'
         }
-        Harpeek._window = vim.api.nvim_open_win(buff, false, vim.tbl_extend('force', winopts, Harpeek._settings.winopts))
+        Harpeek._window = vim.api.nvim_open_win(buff, false, vim.tbl_extend('force', winopts, Harpeek._open_opts.winopts))
     end
 end
 
@@ -143,14 +162,16 @@ function Harpeek.close()
     if Harpeek._window then
         vim.api.nvim_win_close(Harpeek._window, true)
         Harpeek._window = nil
+        Harpeek._open_opts = nil
     end
 end
 
-function Harpeek.toggle()
+---@param opts harpeek.settings?
+function Harpeek.toggle(opts)
     if Harpeek._window then
         Harpeek.close()
     else
-        Harpeek.open()
+        Harpeek.open(opts)
     end
 end
 
