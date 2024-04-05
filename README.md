@@ -1,7 +1,6 @@
 # Har(and other quick access lists)peek
 
-A simple plugin that allows you to _peek_ at your harpoon/grapple/arrow lists.
-The look was heavily inspired by [bufpin.nvim](https://github.com/0x7a7a/bufpin.nvim).
+A simple plugin that allows you to _peek_ at your harpoon/grapple/arrow lists via a floating window or tabline replacement.
 
 ![harpeek-demo](https://github.com/WolfeCub/harpeek.nvim/assets/1369773/5ef08444-04e3-4ecf-ab8d-5bcff8e1bd41)
 
@@ -17,6 +16,9 @@ Using lazy.nvim
     end
 }
 ```
+
+You may optionally specify `branch = beta` to get features as they're being developed. **IMPORTANT** this is an active
+development branch and may break at any time.
 
 The public API of harpeek is very simple:
 
@@ -67,5 +69,11 @@ require('harpeek').setup({
     end
     -- Don't show the window if you don't have any marks. It will automatically (re)open if a mark is created.
     hide_on_empty = true,
+    -- Replace the tabline with your list items. This can be used in place or alongside the floating window.
+    tabline = true,
 })
 ```
+
+## Inspiration
+
+- [bufpin.nvim](https://github.com/0x7a7a/bufpin.nvim)
