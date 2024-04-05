@@ -65,6 +65,7 @@ require('harpeek').setup({
     format = function(path, index)
         return '[' .. index .. '] - ' .. path
     end
-
+    -- Don't show the window if you don't have any marks. It will automatically (re)open if a mark is created.
+    hide_on_empty = true,
 })
 ```

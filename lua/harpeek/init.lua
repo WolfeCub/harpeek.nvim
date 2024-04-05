@@ -6,6 +6,7 @@ Harpeek = {}
 ---@field hl_group string? The highlight group to use for the currently selected buffer
 ---@field winopts table<string, any>? Overrides that will be passed to `nvim_open_win`
 ---@field format harpeek.format How each item will be displayed. 'filename' will show just the tail. 'relative' will show the entire path relative to cwd. 'shortened' will show relative with single letters for the dir.
+---@field hide_on_empty boolean Hide the window if you have no marks. The window will automatically open if a mark is created.
 
 ---@alias harpeek.format 'filename' | 'relative' | 'shortened' | fun(path: string, index: number): string
 
@@ -14,6 +15,7 @@ local default_settings = {
     hl_group = 'Error',
     winopts = {},
     format = 'filename',
+    hide_on_empty = false,
 }
 
 ---@type harpeek.settings
@@ -33,7 +35,7 @@ function Harpeek.setup(opts)
     vim.api.nvim_create_autocmd({ 'BufEnter' }, {
         callback = function()
             if Harpeek._window then
-                Harpeek.open(Harpeek._open_opts)
+                Harpeek._update()
             end
         end,
     })
@@ -48,6 +50,12 @@ local function get_buffer()
         Harpeek._buffer = buff
         return buff
     end
+end
+
+-- A window is considered hidden if `Harpeek._window` is `nil` but we still have open opts.
+---@return boolean
+local function is_hidden()
+    return Harpeek._window == nil and Harpeek._open_opts ~= nil
 end
 
 ---@param path string
@@ -97,7 +105,7 @@ local function format_item(path, index, format)
 end
 
 function Harpeek._update()
-    if Harpeek._window then
+    if Harpeek._window or is_hidden() then
         Harpeek.open(Harpeek._open_opts)
     end
 end
@@ -120,6 +128,13 @@ function Harpeek.open(opts)
     end
 
     if #list == 0 then
+        if Harpeek._window and Harpeek._open_opts.hide_on_empty then
+            local win = Harpeek._window
+            Harpeek._window = nil
+            vim.api.nvim_win_hide(win)
+            return
+        end
+
         contents = {"No marks"}
         longest_line = contents[1]:len()
     end
