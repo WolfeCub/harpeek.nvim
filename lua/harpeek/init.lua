@@ -5,8 +5,8 @@ Harpeek = {}
 ---@class harpeek.settings
 ---@field hl_group string? The highlight group to use for the currently selected buffer
 ---@field winopts table<string, any>? Overrides that will be passed to `nvim_open_win`
----@field format harpeek.format How each item will be displayed. 'filename' will show just the tail. 'relative' will show the entire path relative to cwd. 'shortened' will show relative with single letters for the dir.
----@field hide_on_empty boolean Hide the window if you have no marks. The window will automatically open if a mark is created.
+---@field format harpeek.format? How each item will be displayed. 'filename' will show just the tail. 'relative' will show the entire path relative to cwd. 'shortened' will show relative with single letters for the dir.
+---@field hide_on_empty boolean? Hide the window if you have no marks. The window will automatically open if a mark is created.
 
 ---@alias harpeek.format 'filename' | 'relative' | 'shortened' | fun(path: string, index: number): string
 
