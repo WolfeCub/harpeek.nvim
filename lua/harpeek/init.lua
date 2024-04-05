@@ -7,6 +7,8 @@ Harpeek = {}
 ---@field winopts table<string, any>? Overrides that will be passed to `nvim_open_win`
 ---@field format harpeek.format? How each item will be displayed. 'filename' will show just the tail. 'relative' will show the entire path relative to cwd. 'shortened' will show relative with single letters for the dir.
 ---@field hide_on_empty boolean? Hide the window if you have no marks. The window will automatically open if a mark is created.
+---@field number_items boolean? Show the position next to each item in the list.
+---@field tabline boolean? Replace the tabline with your list items. This can be used in place or alongside the floating window.
 
 ---@alias harpeek.format 'filename' | 'relative' | 'shortened' | fun(path: string, index: number): string
 
@@ -16,6 +18,8 @@ local default_settings = {
     winopts = {},
     format = 'filename',
     hide_on_empty = false,
+    number_items = true,
+    tabline = false,
 }
 
 ---@type harpeek.settings
@@ -39,6 +43,10 @@ function Harpeek.setup(opts)
             end
         end,
     })
+
+    if Harpeek._settings.tabline then
+        vim.o.tabline = '%!v:lua.harpeek_tabline()'
+    end
 end
 
 local function get_buffer()
@@ -73,8 +81,8 @@ local function split_oil_dir(path)
 end
 
 ---@param path string
----@param format harpeek.format
-local function format_item(path, index, format)
+local function format_item(path, index)
+    local format = Harpeek._open_opts.format
     if type(format) == 'function' then
         return format(path, index)
     end
@@ -101,13 +109,23 @@ local function format_item(path, index, format)
         end
     end
 
-    return index .. ' ' .. formatted_line
+    if Harpeek._open_opts.number_items then
+        formatted_line =  index .. ' ' .. formatted_line
+    end
+
+    return formatted_line
 end
 
 function Harpeek._update()
     if Harpeek._window or is_hidden() then
         Harpeek.open(Harpeek._open_opts)
     end
+end
+
+---@param path string
+---@return boolean
+local function file_is_current_buffer(path)
+    return vim.fn.expand('%:p') == vim.fn.fnamemodify(path, ':p')
 end
 
 ---@param opts harpeek.settings?
@@ -119,7 +137,7 @@ function Harpeek.open(opts)
     local list = ext.get_list()
 
     for i, path in ipairs(list) do
-        local line = format_item(path, i, Harpeek._open_opts.format)
+        local line = format_item(path, i)
         table.insert(contents, line)
 
         if line:len() > longest_line then
@@ -148,7 +166,7 @@ function Harpeek.open(opts)
     end
 
     for i, item in ipairs(list) do
-        if vim.fn.expand('%:p') == vim.fn.fnamemodify(item, ':p') then
+        if file_is_current_buffer(item) then
             Harpeek._hlns = vim.api.nvim_buf_add_highlight(Harpeek._buffer, 0, Harpeek._open_opts.hl_group, i - 1, 0, -1)
         end
     end
@@ -188,6 +206,25 @@ function Harpeek.toggle(opts)
     else
         Harpeek.open(opts)
     end
+end
+
+-- Generates a tabline string that displays your harpeek buffers in the tabline
+function _G.harpeek_tabline()
+    local list = ext.get_list()
+
+    local contents = {}
+    for i, path in ipairs(list) do
+        local line = format_item(path, i)
+
+        local group = '%#TabLine#'
+        if file_is_current_buffer(path) then
+            group ='%#TabLineSel#'
+        end
+        table.insert(contents, group .. ' ' .. line .. ' ')
+    end
+    table.insert(contents, '%#TabLineFill#%T')
+
+    return table.concat(contents)
 end
 
 return Harpeek
