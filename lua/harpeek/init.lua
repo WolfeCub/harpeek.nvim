@@ -81,8 +81,10 @@ local function split_oil_dir(path)
 end
 
 ---@param path string
-local function format_item(path, index)
-    local format = Harpeek._open_opts.format
+---@param index number
+---@param format harpeek.format
+---@param show_num boolean
+local function format_item(path, index, format, show_num)
     if type(format) == 'function' then
         return format(path, index)
     end
@@ -109,7 +111,7 @@ local function format_item(path, index)
         end
     end
 
-    if Harpeek._open_opts.number_items then
+    if show_num then
         formatted_line =  index .. ' ' .. formatted_line
     end
 
@@ -137,7 +139,7 @@ function Harpeek.open(opts)
     local list = ext.get_list()
 
     for i, path in ipairs(list) do
-        local line = format_item(path, i)
+        local line = format_item(path, i, Harpeek._open_opts.format, Harpeek._open_opts.number_items)
         table.insert(contents, line)
 
         if line:len() > longest_line then
@@ -214,7 +216,7 @@ function _G.harpeek_tabline()
 
     local contents = {}
     for i, path in ipairs(list) do
-        local line = format_item(path, i)
+        local line = format_item(path, i, Harpeek._settings.format, Harpeek._settings.number_items)
 
         local group = '%#TabLine#'
         if file_is_current_buffer(path) then
