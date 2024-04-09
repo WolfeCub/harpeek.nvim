@@ -25,6 +25,10 @@ local default_settings = {
 ---@type harpeek.settings
 Harpeek._open_opts = nil
 
+local function set_tabline()
+    vim.o.tabline = '%!v:lua.harpeek_tabline()'
+end
+
 ---@param opts harpeek.settings?
 function Harpeek.setup(opts)
     if not opts then
@@ -45,7 +49,7 @@ function Harpeek.setup(opts)
     })
 
     if Harpeek._settings.tabline then
-        vim.o.tabline = '%!v:lua.harpeek_tabline()'
+        set_tabline()
     end
 end
 
@@ -119,6 +123,9 @@ local function format_item(path, index, format, show_num)
 end
 
 function Harpeek._update()
+    if Harpeek._settings.tabline then
+        set_tabline()
+    end
     if Harpeek._window or is_hidden() then
         Harpeek.open(Harpeek._open_opts)
     end
